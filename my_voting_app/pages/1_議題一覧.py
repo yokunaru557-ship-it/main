@@ -1,4 +1,4 @@
-%%writefile app.py
+#%%writefile app.py
 import streamlit as st
 import pandas as pd
 
@@ -68,6 +68,7 @@ for topic in topics:
 
         with col2:
             st.write(f"現在の投票数：{topic['votes']} 票")
+
 
 
 
