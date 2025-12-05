@@ -18,23 +18,6 @@ st.set_page_config(
     layout="centered"
 )
 
-# ---------------------------------------------------------
-# 3. サイドバー（画面遷移メニュー）
-# ---------------------------------------------------------
-with st.sidebar:
-    st.title("📌 メニュー")
-
-    if st.button("🏠 HOME", use_container_width=True):
-        st.switch_page("Home.py")
-
-    if st.button("📋 議題一覧", use_container_width=True):
-        st.switch_page("1_議題一覧.py")
-
-    if st.button("➕ 議題作成", use_container_width=True):
-        st.switch_page("2_新規作成.py")
-
-    if st.button("📊 投票結果", use_container_width=True):
-        st.switch_page("3_投票結果.py")
 
 # ---------------------------------------------------------
 # 4. ヘッダー
@@ -68,6 +51,7 @@ for topic in topics:
 
         with col2:
             st.write(f"現在の投票数：{topic['votes']} 票")
+
 
 
 
