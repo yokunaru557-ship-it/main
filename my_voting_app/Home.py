@@ -10,12 +10,22 @@ APP_DESCRIPTION = "チームの意見を一つに。新しい議題を作った�
 
 # 統計情報のダミーデータ (後でGitHubやデータベースから取得する関数に置き換えます)
 def get_stats():
-    # 本来はここで pd.read_csv('github_url...') 等を行う
-    return {
-        "participants": 777,
-        "votes": 777
-    }
+ # 1. 議題数（topics.csvの行数）を数える
+    topics_count = 0
+    if os.path.exists("data/topics.csv"):
+        df_topics = pd.read_csv("data/topics.csv")
+        topics_count = len(df_topics)
 
+    # 2. 投票数（votes.csvの行数）を数える ※まだファイルがない場合は0
+    votes_count = 0
+    if os.path.exists("data/votes.csv"):
+        df_votes = pd.read_csv("data/votes.csv")
+        votes_count = len(df_votes)
+
+    return {
+        "participants": topics_count, # ここを「現在の議題数」として表示してみましょう
+        "votes": votes_count
+    }
 # ---------------------------------------------------------
 # 2. ページ設定
 # ---------------------------------------------------------
@@ -88,4 +98,5 @@ def main():
             )
 
 if __name__ == "__main__":
+
     main()
