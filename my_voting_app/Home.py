@@ -12,7 +12,7 @@ APP_DESCRIPTION = "チームの意見を一つに。新しい議題を作った�
 # ---------------------------------------------------------
 st.set_page_config(
     page_title=PAGE_TITLE,
-    page_icon=("images/icon_01.ico"),
+    page_icon=("images/icon_01.jpg"),
     layout="centered"
 )
 
@@ -58,6 +58,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
