@@ -135,7 +135,7 @@ for index, topic in topics_df.iterrows():
                 db_handler.add_vote_to_sheet(title, selected_option)
                 st.success("投票しました！")
                 st.balloons()
-                time.sleep(1)
+                time.sleep(3)
                 st.rerun()
                
 
@@ -150,6 +150,7 @@ for index, topic in topics_df.iterrows():
                 counts = topic_votes["option"].value_counts()
                 for opt in options:
                     st.write(f"{opt}：{counts.get(opt, 0)} 票")
+
 
 
 
