@@ -5,7 +5,7 @@ import datetime
 import time
 import sys
 import os
-
+from background import set_background  #  # 背景画像の設定ファイルをインポート
 # ---------------------------------------------------------
 # db_handler.py を読み込めるようにパスを通す
 # ---------------------------------------------------------
@@ -28,6 +28,7 @@ st.set_page_config(
     layout="centered"
 )
 
+set_background("background.png")  # 背景画像の設定
 # ---------------------------------------------------------
 # 4. ヘッダー
 # ---------------------------------------------------------
@@ -147,6 +148,7 @@ for index, topic in topics_df.iterrows():
                 counts = topic_votes["option"].value_counts()
                 for opt in options:
                     st.write(f"{opt}：{counts.get(opt, 0)} 票")
+
 
 
 
