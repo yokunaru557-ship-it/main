@@ -40,19 +40,22 @@ if "fg" not in st.session_state:
     st.session_state["fg"] = 0  # 0: 締切順, 1: 新着順
 
 # 右寄せでボタンを横並びに配置
-col1, col2, col3, col4 = st.columns([0.2, 0.2, 0.3, 0.3])
+col1, col2, col3, col4 = st.columns([0.3, 0.3, 0.2, 0.2])
 with col1:
+    input_date = st.date_input("締切",min_value=datetime.date.today())
+   
+with col3:
     st.write("")
     st.write("")
     if st.button("⬆️ 締切昇順"):
         st.session_state.fg = 1
-with col2:
+   
+with col4:
     st.write("")
     st.write("")
     if st.button("⬇️ 締切降順"):
         st.session_state.fg = 0
-with col3:
-    input_date = st.date_input("締切",min_value=datetime.date.today())
+    
 
 # ---------------------------------------------------------
 # 5. スプレッドシートから議題を取得
@@ -130,6 +133,7 @@ for index, topic in topics_df.iterrows():
                 counts = topic_votes["option"].value_counts()
                 for opt in options:
                     st.write(f"{opt}：{counts.get(opt, 0)} 票")
+
 
 
 
