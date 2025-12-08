@@ -41,10 +41,10 @@ if "fg" not in st.session_state:
 # 右寄せでボタンを横並びに配置
 col1, col2, col3, col4 = st.columns([0.16, 0.16, 0.32, 0.36])
 with col1:
-    if st.button("⏰ 締切昇順"):
+    if st.button("⏰ 締切順"):
         st.session_state.fg = 0
 with col2:
-    if st.button("🆕 締切降順"):
+    if st.button("🆕 新着順"):
         st.session_state.fg = 1
 
 # ---------------------------------------------------------
@@ -121,4 +121,5 @@ for index, topic in topics_df.iterrows():
                 counts = topic_votes["option"].value_counts()
                 for opt in options:
                     st.write(f"{opt}：{counts.get(opt, 0)} 票")
+
 
