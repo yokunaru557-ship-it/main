@@ -103,11 +103,12 @@ if input_date:
 # ---------------------------------------------------------
 # 8. 議題ループ表示
 # ---------------------------------------------------------
-vote_key = f"vote_{index}"
+
 if vote_key not in st.session_state:
     st.session_state[vote_key] = False
 
 for index, topic in topics_df.iterrows():
+    vote_key = f"vote_{index}"
     title = topic["title"]
     author = topic.get("author", "不明")
     options = topic["options"].split("/")
@@ -151,6 +152,7 @@ for index, topic in topics_df.iterrows():
                 counts = topic_votes["option"].value_counts()
                 for opt in options:
                     st.write(f"{opt}：{counts.get(opt, 0)} 票")
+
 
 
 
