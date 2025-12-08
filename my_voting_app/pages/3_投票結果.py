@@ -15,7 +15,7 @@ import db_handler
 st.set_page_config(page_title="投票結果", page_icon="📊")
 
 st.title("📊 投票結果一覧")
-st.caption("締切済み議題の結果のみ表示します")
+st.caption("締切済みの議題のみ表示します")
 
 # ---------------------------------------------------------
 # データ取得
@@ -24,27 +24,39 @@ topics_df = db_handler.get_topics_from_sheet()
 votes_df = db_handler.get_votes_from_sheet()
 
 # ---------------------------------------------------------
-# 現在時刻（pandas形式で統一）
+# デバッグ表示（問題解消後は消してOK）
 # ---------------------------------------------------------
-now = pd.to_datetime("now")
+if not topics_df.empty:
+    st.write("🔍 デバッグ：読み込んだデータ")
+    st.dataframe(topics_df.head())
 
 # ---------------------------------------------------------
-# deadline を datetime に変換
+# 日付変換処理
 # ---------------------------------------------------------
 if not topics_df.empty and "deadline" in topics_df.columns:
-    topics_df["deadline"] = pd.to_datetime(topics_df["deadline"], errors="coerce")
+    topics_df["deadline_parsed"] = pd.to_datetime(
+        topics_df["deadline"], errors="coerce"
+    )
+    topics_df["deadline_date"] = topics_df["deadline_parsed"].dt.date
 
 # ---------------------------------------------------------
-# 締切済みの議題だけ抽出
+# 今日の日付
 # ---------------------------------------------------------
-finished_topics = (
-    topics_df[topics_df["deadline"] < now]
-    if not topics_df.empty
-    else pd.DataFrame()
-)
+today = pd.to_datetime("now").date()
 
 # ---------------------------------------------------------
-# 議題リスト（ドロップダウン）
+# 締切済みデータ抽出
+# ---------------------------------------------------------
+if not topics_df.empty and "deadline_date" in topics_df.columns:
+    finished_topics = topics_df[
+        topics_df["deadline_date"].notna() &
+        (topics_df["deadline_date"] < today)
+    ].copy()
+else:
+    finished_topics = pd.DataFrame()
+
+# ---------------------------------------------------------
+# 議題プルダウン
 # ---------------------------------------------------------
 if finished_topics.empty:
     topic_titles = ["（締切済みの議題がありません）"]
@@ -54,26 +66,27 @@ else:
 selected_topic = st.selectbox("議題を選択してください", topic_titles)
 
 # ---------------------------------------------------------
-# 表示処理
+# 表示部分
 # ---------------------------------------------------------
 if finished_topics.empty or selected_topic == "（締切済みの議題がありません）":
-    st.info("締め切り済みの議題がまだありません。")
+    st.info("締切済みの議題はまだありません。")
 
 else:
     topic_row = finished_topics[finished_topics["title"] == selected_topic].iloc[0]
     options = topic_row["options"].split("/")
 
-    topic_votes = (
-        votes_df[votes_df["topic_title"] == selected_topic]
-        if not votes_df.empty
-        else pd.DataFrame()
-    )
+    topic_votes = votes_df[
+        votes_df["topic_title"] == selected_topic
+    ] if not votes_df.empty else pd.DataFrame()
 
     st.subheader(f"📝 議題：{selected_topic}")
 
     # 集計
     result = []
-    counts = topic_votes["option"].value_counts() if not topic_votes.empty else {}
+    counts = (
+        topic_votes["option"].value_counts()
+        if not topic_votes.empty else {}
+    )
 
     for opt in options:
         result.append({
@@ -83,11 +96,11 @@ else:
 
     result_df = pd.DataFrame(result)
 
-    # 表のみ表示
+    # 表のみ表示（インデックス非表示）
     st.table(result_df.reset_index(drop=True))
 
 # ---------------------------------------------------------
-# 手動更新ボタン
+# 手動更新
 # ---------------------------------------------------------
 st.divider()
 if st.button("🔄 更新"):
