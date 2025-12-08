@@ -89,16 +89,16 @@ elif st.session_state.fg == 1:  # 新着順（降順）
     
 # 締切日での検索（input_date でフィルタ）
 if input_date:
-    topics_df = topics_df[
+    filtered_df = topics_df[
         topics_df["deadline"].dt.date == input_date
-    
-     if filtered_df.empty:
+    ]
+
+    # ✅ 該当データがあるか判定
+    if filtered_df.empty:
         st.warning("⚠️ 指定した締切日の議題は見つかりませんでした。")
         st.stop()   # これ以降の表示処理を止める
     else:
         topics_df = filtered_df
-    ]
-
 # ---------------------------------------------------------
 # 8. 議題ループ表示
 # ---------------------------------------------------------
@@ -145,6 +145,7 @@ for index, topic in topics_df.iterrows():
                 counts = topic_votes["option"].value_counts()
                 for opt in options:
                     st.write(f"{opt}：{counts.get(opt, 0)} 票")
+
 
 
 
