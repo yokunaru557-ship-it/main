@@ -58,16 +58,13 @@ if topics_df.empty:
 votes_df = db_handler.get_votes_from_sheet()
 
 # 今日の日付
-today = datetime.date.today()
-
-# 今日の日付
-today = datetime.date.today()
+now = datetime.datetime.now()
 
 # 1. created_at や deadline を date 型に変換
 topics_df["deadline"] = pd.to_datetime(topics_df["deadline"], errors="coerce").dt.date
 
 # 2. 締切があるものだけ残す（締切済みを非表示）
-topics_df = topics_df[topics_df["deadline"].isna() | (topics_df["deadline"] >= today)]
+topics_df = topics_df[topics_df["deadline"].isna() | (topics_df["deadline"] >= now)]
 
 # 3. 締切日で昇順ソート（期限が近いものから表示）
 if st.session_state.fg == 0:
@@ -110,6 +107,7 @@ for index, topic in topics_df.iterrows():
                 counts = topic_votes["option"].value_counts()
                 for opt in options:
                     st.write(f"{opt}：{counts.get(opt, 0)} 票")
+
 
 
 
