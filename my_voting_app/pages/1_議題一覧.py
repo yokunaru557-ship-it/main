@@ -33,7 +33,12 @@ st.set_page_config(
 st.title(APP_HEADER)
 st.caption(APP_DESCRIPTION)
 st.divider()
-
+if "fg" not in st.session_state:
+    st.fg = 0
+if st.button("⏰ 期限順", key=f"vote_{index}"):
+    session_state.fg = 0
+if st.button("🆕 新しい順", key=f"vote_{index}"):
+    session_state.fg = 1
 # ---------------------------------------------------------
 # 5. スプレッドシートから議題を取得
 # ---------------------------------------------------------
@@ -61,7 +66,11 @@ topics_df["deadline"] = pd.to_datetime(topics_df["deadline"], errors="coerce").d
 topics_df = topics_df[topics_df["deadline"].isna() | (topics_df["deadline"] >= today)]
 
 # 3. 締切日で昇順ソート（期限が近いものから表示）
-topics_df = topics_df.sort_values("deadline", ascending=True)
+if st.session_state.fg == 0:
+    topics_df = topics_df.sort_values("deadline", ascending=True)
+# 3. 締切日で降順ソート（期限が遠いものから表示）
+if st.session_state.fg == 1:
+    topics_df = topics_df.sort_values("deadline", ascending=False)
 
 # 4. ループで表示
 for index, topic in topics_df.iterrows():
@@ -97,6 +106,7 @@ for index, topic in topics_df.iterrows():
                 counts = topic_votes["option"].value_counts()
                 for opt in options:
                     st.write(f"{opt}：{counts.get(opt, 0)} 票")
+
 
 
 
