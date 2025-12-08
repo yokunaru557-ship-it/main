@@ -2,13 +2,16 @@ import streamlit as st
 import pandas as pd
 import os
 
+PAGE_TITLE = "投票アプリ Home"
+APP_HEADER = "🗳️ 投票アプリへようこそ！"
+APP_DESCRIPTION = "チームの意見を一つに。新しい議題を作ったり、投票に参加しましょう。"
 
 # ---------------------------------------------------------
 # 2. ページ設定
 # ---------------------------------------------------------
 st.set_page_config(
     page_title=PAGE_TITLE,
-    page_icon="✨",
+    page_icon=("images/icon_01.ico"),
     layout="centered" # スマホでも見やすいよう中央寄せ
 )
 
@@ -77,6 +80,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
