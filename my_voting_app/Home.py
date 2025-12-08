@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 import base64
-from background import set_background
+from background import set_background  #  # 背景画像の設定ファイルをインポート
 # ---------------------------------------------------------
 # 1. 設定 & 定数
 # ---------------------------------------------------------
@@ -71,6 +71,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
