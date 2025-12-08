@@ -34,11 +34,11 @@ st.title(APP_HEADER)
 st.caption(APP_DESCRIPTION)
 st.divider()
 if "fg" not in st.session_state:
-    st.fg = 0
-if st.button("⏰ 期限順", key=f"vote_{index}"):
-    session_state.fg = 0
-if st.button("🆕 新しい順", key=f"vote_{index}"):
-    session_state.fg = 1
+    st.session_state["fg"] = 0  # 0: 期限順, 1: 新着順
+if st.button("⏰ 期限順"):
+    st.session_state.fg = 0
+if st.button("🆕 新しい順"):
+    st.session_state.fg = 1
 # ---------------------------------------------------------
 # 5. スプレッドシートから議題を取得
 # ---------------------------------------------------------
@@ -106,6 +106,7 @@ for index, topic in topics_df.iterrows():
                 counts = topic_votes["option"].value_counts()
                 for opt in options:
                     st.write(f"{opt}：{counts.get(opt, 0)} 票")
+
 
 
 
