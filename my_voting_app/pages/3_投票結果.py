@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import sys
 import os
-
+from background import set_background  #  # 背景画像の設定ファイルをインポート
 
 # db_handler.py を読み込めるようにパスを通す
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/..'))
@@ -14,6 +14,7 @@ st.set_page_config(page_title="投票結果", page_icon="📊")
 st.title("📊 投票結果一覧")
 st.caption("締切済みの議題のみ表示します")
 
+set_background("background.png")  # 背景画像の設定
 
 # データ取得
 topics_df = db_handler.get_topics_from_sheet()
@@ -90,5 +91,6 @@ else:
 st.divider()
 if st.button("🔄 更新"):
     st.rerun()
+
 
 
