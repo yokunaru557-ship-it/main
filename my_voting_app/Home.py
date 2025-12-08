@@ -6,13 +6,14 @@ import streamlit as st
 PAGE_TITLE = "投票アプリ Home"
 APP_HEADER = "🗳️ 投票アプリへようこそ！"
 APP_DESCRIPTION = "チームの意見を一つに。新しい議題を作ったり、投票に参加しましょう。"
+ICON_PATH = os.path.join(os.path.dirname(__file__), "images/icon_01.png")
 
 # ---------------------------------------------------------
 # 2. ページ設定
 # ---------------------------------------------------------
 st.set_page_config(
     page_title=PAGE_TITLE,
-    page_icon=("images/icon_01.png"),
+    page_icon=ICON_PATH,
     layout="centered"
 )
 
@@ -58,6 +59,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
