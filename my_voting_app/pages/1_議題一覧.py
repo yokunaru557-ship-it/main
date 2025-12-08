@@ -138,6 +138,7 @@ for index, topic in topics_df.iterrows():
                 st.success("投票しました！")
                 st.balloons()
                 time.sleep(3)
+                st.session_state.clicked = False
                 st.rerun()
                
 
@@ -152,6 +153,7 @@ for index, topic in topics_df.iterrows():
                 counts = topic_votes["option"].value_counts()
                 for opt in options:
                     st.write(f"{opt}：{counts.get(opt, 0)} 票")
+
 
 
 
