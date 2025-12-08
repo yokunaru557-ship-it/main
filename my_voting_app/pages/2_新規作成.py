@@ -38,20 +38,34 @@ with st.container(border=True):
     author = st.text_input("作成者名", placeholder="例：山田 太郎")
 
     # ▼▼▼ 修正ポイント：日付と時間を横並びにする ▼▼▼
+    # ▼▼▼ 修正：時間指定を「時」と「分」の数字入力に分ける ▼▼▼
     st.markdown("##### 📅 締め切り設定")
-    col_date, col_time = st.columns(2)
+    
+    # まず日付と時間エリアを左右に分ける
+    col_date, col_time_area = st.columns([1, 1])
     
     with col_date:
         # 日付の入力
         input_date = st.date_input("締め切り日", min_value=datetime.date.today())
     
-    with col_time:
-        # 時間の入力（初期値は12:00に設定）
-        # step=600 で「10分単位」、step=60 なら「1分単位」になります
-        input_time = st.time_input("締め切り時間", value=datetime.time(12, 0), step=60)
+    with col_time_area:
+        st.write("締め切り時間")
+        # 時間エリアの中で、さらに「時」と「分」を横に並べる
+        t_col1, t_col2 = st.columns(2)
+        
+        with t_col1:
+            # 時 (0〜23)
+            input_hour = st.number_input("時", min_value=0, max_value=23, value=12, step=1)
+        with t_col2:
+            # 分 (0〜59)
+            input_minute = st.number_input("分", min_value=0, max_value=59, value=0, step=1)
 
-    # 日付と時間を合体させて、一つのデータにする
-    deadline_dt = datetime.datetime.combine(input_date, input_time)
+    # 日付と、作成した「時・分」を合体させる
+    deadline_dt = datetime.datetime.combine(
+        input_date, 
+        datetime.time(input_hour, input_minute)
+    )
+    # ▲▲▲ 修正ポイントここまで ▲▲▲
     # ▲▲▲ 修正ポイントここまで ▲▲▲
     
     st.markdown("---")
@@ -96,6 +110,7 @@ with st.container(border=True):
                 st.error(f"スプレッドシートへの保存に失敗しました...: {e}")
             
             # 元のコードにあった「最後の行の st.balloons()」は削除しました（重複していたため）
+
 
 
 
