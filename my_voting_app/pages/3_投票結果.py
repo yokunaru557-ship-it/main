@@ -1,24 +1,16 @@
 import streamlit as st
+from streamlit_autorefresh import st_autorefresh
 import pandas as pd
 import sys
 import os
-import time
-
-# db_handler.py を読み込めるようにパスを通す
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/..'))
 import db_handler
 
-# ページ設定
+st.title("📊 投票結果")
 
-st.set_page_config(page_title="投票結果", page_icon="📊")
-
-st.title("📊 投票結果一覧")
-st.caption("現在の投票状況をリアルタイムで確認できます")
-
-# 自動更新（5秒ごと）
-
-st.autorefresh(interval=5000, key="auto_refresh")
+# 5秒ごとに自動更新
+st_autorefresh(interval=5000, key="auto_refresh")
 
 
 # データ取得
@@ -63,3 +55,4 @@ if selected_topic:
 
     # グラフで表示
     st.bar_chart(result_df.set_index("選択肢"))
+
