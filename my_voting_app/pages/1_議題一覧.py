@@ -86,6 +86,12 @@ if st.session_state.fg == 0:  # 締切順（昇順）
     topics_df = topics_df.sort_values("deadline", ascending=True)
 elif st.session_state.fg == 1:  # 新着順（降順）
     topics_df = topics_df.sort_values("deadline", ascending=False)
+    
+# 締切日での検索（input_date でフィルタ）
+if input_date:
+    topics_df = topics_df[
+        topics_df["deadline"].dt.date == input_date
+    ]
 
 # ---------------------------------------------------------
 # 8. 議題ループ表示
@@ -133,6 +139,7 @@ for index, topic in topics_df.iterrows():
                 counts = topic_votes["option"].value_counts()
                 for opt in options:
                     st.write(f"{opt}：{counts.get(opt, 0)} 票")
+
 
 
 
