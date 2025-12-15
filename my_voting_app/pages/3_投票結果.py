@@ -50,7 +50,7 @@ if not topics_df.empty and "deadline" in topics_df.columns:
 # 今日の日付
 today = pd.to_datetime("now").date()
 
-
+"""
 # 締切済み議題のみ抽出
 if not topics_df.empty and "deadline_date" in topics_df.columns and "status" in topics_df.columns:
     finished_topics = topics_df[
@@ -62,9 +62,44 @@ else:
     finished_topics = pd.DataFrame()
 
 
+
 # 議題ドロップダウン
 if finished_topics.empty:
     topic_titles = ["（締切済みの議題がありません）"]
+else:
+    topic_titles = finished_topics["title"].tolist()
+
+selected_topic = st.selectbox("議題を選択してください", topic_titles)
+"""
+
+
+# ログインユーザー
+current_user = str(st.session_state.logged_in_user).strip()
+
+# 締切済み ＋ 自分が作成した議題のみ抽出
+if (
+    not topics_df.empty
+    and {"deadline_date", "status", "owner_email"}.issubset(topics_df.columns)
+):
+    finished_topics = topics_df[
+        (
+            (
+                topics_df["deadline_date"].notna()
+                & (topics_df["deadline_date"] < today)
+            )
+            | (topics_df["status"] == "closed")
+        )
+        & (
+            topics_df["owner_email"].astype(str).str.strip() == current_user
+        )
+    ].copy()
+else:
+    finished_topics = pd.DataFrame()
+
+
+# 議題ドロップダウン
+if finished_topics.empty:
+    topic_titles = ["（自分が作成した締切済みの議題がありません）"]
 else:
     topic_titles = finished_topics["title"].tolist()
 
@@ -163,3 +198,4 @@ else:
 st.divider()
 if st.button("🔄 更新"):
     st.rerun()
+
