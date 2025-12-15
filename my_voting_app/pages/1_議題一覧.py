@@ -88,6 +88,12 @@ if input_date:
     else:
         topics_df = filtered_df
 
+if my_only:
+    topics_df = topics_df[
+        topics_df["owner_email"].str.strip() == current_user
+    ]
+
+
 # ---------------------------------------------------------
 # 議題ループ表示
 # ---------------------------------------------------------
@@ -188,6 +194,7 @@ for index, topic in topics_df.iterrows():
                     counts = topic_votes["option"].value_counts()
                     for opt in options:
                         st.write(f"{opt}：{counts.get(opt, 0)} 票")
+
 
 
 
