@@ -94,7 +94,7 @@ if my_only:
         topics_df["owner_email"].str.strip() == current_user
     ]
     if topics_df.empty:
-        st.warning("⚠️ 指定した締切日の議題は見つかりませんでした。")
+        st.warning("⚠️ 自分が作成した議題はまだありません。 ")
         st.stop()
 
 
@@ -198,6 +198,7 @@ for index, topic in topics_df.iterrows():
                     counts = topic_votes["option"].value_counts()
                     for opt in options:
                         st.write(f"{opt}：{counts.get(opt, 0)} 票")
+
 
 
 
