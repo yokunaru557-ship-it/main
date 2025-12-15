@@ -36,6 +36,10 @@ if "fg" not in st.session_state:
 col1, col2, col3, col4 = st.columns([0.36, 0.36, 0.14, 0.14])
 with col1:
     input_date = st.date_input("締め切りで絞り込み", value=None)
+with col2:
+    st.write("")
+    st.write("")
+    my_only = st.checkbox("自分の議題のみ表示")
 with col3:
     st.write("")
     st.write("")
@@ -184,6 +188,7 @@ for index, topic in topics_df.iterrows():
                     counts = topic_votes["option"].value_counts()
                     for opt in options:
                         st.write(f"{opt}：{counts.get(opt, 0)} 票")
+
 
 
 
