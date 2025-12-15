@@ -51,29 +51,15 @@ if not topics_df.empty and "deadline" in topics_df.columns:
 today = pd.to_datetime("now").date()
 
 
-# ログインユーザー
-current_user = str(st.session_state.logged_in_user).strip()
-
-# 締切済み ＋ 自分が作成した議題のみ抽出
-if (
-    not topics_df.empty
-    and {"deadline_date", "status", "owner_email"}.issubset(topics_df.columns)
-):
+# 締切済み議題のみ抽出
+if not topics_df.empty and "deadline_date" in topics_df.columns and "status" in topics_df.columns:
     finished_topics = topics_df[
-        (
-            (
-                topics_df["deadline_date"].notna()
-                & (topics_df["deadline_date"] < today)
-            )
-            | (topics_df["status"] == "closed")
-        )
-        & (
-            topics_df["owner_email"].astype(str).str.strip() == current_user
-        )
+        topics_df["deadline_date"].notna() &
+        (topics_df["deadline_date"] < today) |
+        (topics_df["status"] == "closed")
     ].copy()
 else:
     finished_topics = pd.DataFrame()
-
 
 
 # 議題ドロップダウン
@@ -177,4 +163,3 @@ else:
 st.divider()
 if st.button("🔄 更新"):
     st.rerun()
-
