@@ -39,11 +39,11 @@ with col1:
 with col3:
     st.write("")
     st.write("")
-    if st.button("⬆️ 昇順"): st.session_state.fg = 1
+    if st.button("⬆️ 昇順"): st.session_state.fg = 0
 with col4:
     st.write("")
     st.write("")
-    if st.button("⬇️ 降順"): st.session_state.fg = 0
+    if st.button("⬇️ 降順"): st.session_state.fg = 1
 
 # ---------------------------------------------------------
 # データ取得
@@ -184,6 +184,7 @@ for index, topic in topics_df.iterrows():
                     counts = topic_votes["option"].value_counts()
                     for opt in options:
                         st.write(f"{opt}：{counts.get(opt, 0)} 票")
+
 
 
 
