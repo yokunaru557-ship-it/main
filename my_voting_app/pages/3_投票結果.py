@@ -125,7 +125,7 @@ else:
         deleted = db_handler.delete_topic(selected_topic, current_user, logical=True)
         if deleted:
             st.success(f"「{selected_topic}」を削除しました。")
-            st.experimental_rerun()
+            
         else:
             st.error("削除できませんでした（権限がないか既に削除済み）")
 
@@ -191,6 +191,7 @@ else:
 st.divider()
 if st.button("🔄 更新"):
     st.rerun()
+
 
 
 
