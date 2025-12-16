@@ -26,7 +26,6 @@ def connect_to_sheet():
             return None
     else:
         try:
-            # Secretsから読み込む
             if "gcp_service_account" in st.secrets:
                 key_dict = dict(st.secrets["gcp_service_account"])
                 creds = ServiceAccountCredentials.from_json_keyfile_dict(key_dict, scope)
@@ -45,7 +44,7 @@ def connect_to_sheet():
         return None
 
 # ---------------------------------------------------------
-# 1. 議題を保存する（修正済み：メールとステータスを保存）
+# 1. 議題を保存する
 # ---------------------------------------------------------
 def add_topic_to_sheet(title, author, options, deadline, owner_email):
     sheet = connect_to_sheet()
@@ -57,8 +56,7 @@ def add_topic_to_sheet(title, author, options, deadline, owner_email):
         JST = datetime.timezone(t_delta, 'JST')
         created_at = datetime.datetime.now(JST).strftime("%Y-%m-%d %H:%M:%S")
         
-        # ▼▼▼ ここが重要！7つのデータを保存します ▼▼▼
-        # 1.タイトル 2.作成者 3.選択肢 4.締切 5.作成日 6.ステータス 7.所有者メアド
+        # タイトル, 作成者, 選択肢, 期限, 作成日, ステータス, 作成者メアド
         new_row = [title, author, options, str(deadline), created_at, "active", owner_email]
         
         worksheet.append_row(new_row)
@@ -81,8 +79,9 @@ def get_topics_from_sheet():
         return pd.DataFrame()
 
 # ---------------------------------------------------------
-# 3. 投票を保存する
+# 3. 投票を保存する（ここを更新！）
 # ---------------------------------------------------------
+# 引数に user_email を追加しました
 def add_vote_to_sheet(topic_title, option, user_email):
     sheet = connect_to_sheet()
     if sheet is None: return
@@ -92,7 +91,10 @@ def add_vote_to_sheet(topic_title, option, user_email):
         t_delta = datetime.timedelta(hours=9)
         JST = datetime.timezone(t_delta, 'JST')
         voted_at = datetime.datetime.now(JST).strftime("%Y-%m-%d %H:%M:%S")
+        
+        # ▼▼▼ 最後に user_email を保存します ▼▼▼
         new_row = [topic_title, option, voted_at, user_email]
+        
         worksheet.append_row(new_row)
     except Exception as e:
         st.error(f"投票書き込みエラー: {e}")
@@ -127,4 +129,5 @@ def close_topic_status(topic_title):
         
     except Exception as e:
         st.error(f"ステータス更新エラー: {e}")
+
 
