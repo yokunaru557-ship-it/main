@@ -13,8 +13,7 @@ import db_handler
 # ページ設定
 # ---------------------------------------------------------
 st.set_page_config(page_title="議題一覧", page_icon="🗳️", layout="centered")
-
-set_background("background.png")  # 背景画像の設定
+set_background("background.png")
 
 # ▼▼▼ 門番コード ▼▼▼
 if "logged_in_user" not in st.session_state or st.session_state.logged_in_user is None:
@@ -29,7 +28,6 @@ st.title("🗳️ 議題一覧")
 st.caption("みんなで意見を集めよう！気になる議題に投票できます。")
 st.divider()
 
-# ソート用セッションステート
 if "fg" not in st.session_state:
     st.session_state["fg"] = 0 
 
@@ -74,17 +72,13 @@ votes_df = load_votes()
 # ---------------------------------------------------------
 now = datetime.datetime.now()
 topics_df["deadline"] = pd.to_datetime(topics_df["deadline"], errors="coerce", format="%Y-%m-%d %H:%M")
-
-# 期限切れを非表示にするフィルタ
 topics_df = topics_df[topics_df["deadline"].isna() | (topics_df["deadline"] >= now)]
 
-# ソート処理
 if st.session_state.fg == 0:
     topics_df = topics_df.sort_values("deadline", ascending=True)
 elif st.session_state.fg == 1:
     topics_df = topics_df.sort_values("deadline", ascending=False)
 
-# 日付フィルタ
 if input_date:
     filtered_df = topics_df[topics_df["deadline"].dt.date == input_date]
     if filtered_df.empty:
@@ -93,13 +87,10 @@ if input_date:
     else:
         topics_df = filtered_df
 
-# ▼▼▼ 自分の議題のみフィルタ（ここが重要！） ▼▼▼
 if my_only:
     current_user_email = str(st.session_state.logged_in_user).strip()
-    # owner_email列があるか確認してからフィルタ
     if "owner_email" in topics_df.columns:
         topics_df = topics_df[topics_df["owner_email"].astype(str).str.strip() == current_user_email]
-    
     if topics_df.empty:
         st.info("あなたが作成した議題はまだありません（または期限切れです）。")
         st.stop()
@@ -121,8 +112,6 @@ for index, topic in topics_df.iterrows():
         deadline_str = "未設定"
 
     is_closed = (status == 'closed')
-    
-    # ログイン中のユーザー
     current_user = str(st.session_state.logged_in_user).strip()
 
     # ▼▼▼ 重複投票チェック ▼▼▼
@@ -166,11 +155,11 @@ for index, topic in topics_df.iterrows():
                 else:
                     st.warning("⏰ 期限切れ")
             
-            # ▼ 投票済みの場合 ▼
+            # ▼ 投票済みならフォームを隠す ▼
             elif has_voted:
                 st.info("✅ 投票済み")
                 
-            # ▼ 未投票の場合 ▼
+            # ▼ 未投票ならフォームを表示 ▼
             else:
                 submit_value = None
                 if options_raw == "FREE_INPUT":
@@ -188,13 +177,13 @@ for index, topic in topics_df.iterrows():
                     if not submit_value:
                         st.error("回答を入力してください")
                     else:
-                        # ▼▼▼ メアド(current_user)も渡す必要がある！ ▼▼▼
+                        # メアドも一緒に保存
                         db_handler.add_vote_to_sheet(title, submit_value, current_user)
                         load_votes.clear()
                         st.success("投票しました！")
                         st.rerun()
 
-        # 右カラム：投票数集計表示（文字表示）
+        # 右カラム：投票数集計表示
         with col2:
             st.write("### 📊 現在の投票数")
             topic_votes = votes_df[votes_df["topic_title"] == title] if not votes_df.empty else pd.DataFrame()
@@ -219,6 +208,7 @@ for index, topic in topics_df.iterrows():
                     counts = topic_votes["option"].value_counts()
                     for opt in options:
                         st.write(f"{opt}：{counts.get(opt, 0)} 票")
+
 
 
 
