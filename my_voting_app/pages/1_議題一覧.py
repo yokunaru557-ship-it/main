@@ -53,15 +53,14 @@ with col4:
     if st.button("⬇️ 降順"): st.session_state.fg = 1
 
 # ---------------------------------------------------------
-# データ取得 & お掃除（ここが重要！）
+# データ取得
 # ---------------------------------------------------------
-@st.cache_data(ttl=0)
+# ▼▼▼ 修正：API制限回避のため、15秒間隔の読み込みに変更 ▼▼▼
+@st.cache_data(ttl=15)
 def load_topics():
     df = db_handler.get_topics_from_sheet()
-    # 列がない場合のエラー回避
     if "owner_email" not in df.columns:
         df["owner_email"] = ""
-    # 空っぽ(NaN)を空文字に変換してエラーを防ぐ
     df = df.fillna("").astype(str)
     return df
 
@@ -71,15 +70,14 @@ if topics_df.empty:
     st.info("まだ議題が登録されていません。")
     st.stop()
 
-@st.cache_data(ttl=0)
+# ▼▼▼ 修正：ここも15秒に変更 ▼▼▼
+@st.cache_data(ttl=15)
 def load_votes():
     df = db_handler.get_votes_from_sheet()
-    # 列がない場合のエラー回避
     if "voter_email" not in df.columns:
         df["voter_email"] = ""
     if "topic_title" not in df.columns:
         df["topic_title"] = ""
-    # 空っぽ(NaN)を空文字に変換してエラーを防ぐ
     df = df.fillna("").astype(str)
     return df
 
@@ -131,21 +129,17 @@ for index, topic in topics_df.iterrows():
     is_closed = (status == 'closed')
     current_user = str(st.session_state.logged_in_user).strip()
 
-    # ▼▼▼ 重複投票チェック（強化版） ▼▼▼
+    # ▼▼▼ 重複投票チェック ▼▼▼
     has_voted = False
     
-    # 1. スプレッドシートの記録をチェック
+    # 1. データ上のチェック
     if not votes_df.empty:
-        # この議題への投票データを抽出
         this_topic_votes = votes_df[votes_df["topic_title"] == title]
-        
-        # 投票者のリストを作成（確実に文字列として比較）
         voter_list = this_topic_votes["voter_email"].str.strip().tolist()
-        
         if current_user in voter_list:
             has_voted = True
     
-    # 2. 直前の操作履歴もチェック
+    # 2. 直前の操作履歴チェック（これによりTTL=15秒でも即時反映される！）
     if title in st.session_state.just_voted_topics:
         has_voted = True
 
@@ -204,6 +198,8 @@ for index, topic in topics_df.iterrows():
                     else:
                         db_handler.add_vote_to_sheet(title, submit_value, current_user)
                         st.session_state.just_voted_topics.append(title)
+                        
+                        # 自分のキャッシュだけはクリアして即反映を試みる
                         load_votes.clear()
                         st.success("投票しました！")
                         st.rerun()
@@ -233,6 +229,7 @@ for index, topic in topics_df.iterrows():
                     counts = topic_votes["option"].value_counts()
                     for opt in options:
                         st.write(f"{opt}：{counts.get(opt, 0)} 票")
+
 
 
 
