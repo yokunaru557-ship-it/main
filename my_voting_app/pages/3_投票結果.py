@@ -17,8 +17,7 @@ client = genai.Client(api_key=API_KEY)
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/..'))
 import db_handler
 
-sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/..'))
-import db_handler
+
 
 # ページ設定
 st.set_page_config(page_title="投票結果", page_icon="📊")
@@ -123,7 +122,7 @@ else:
     st.dataframe(result_df, hide_index=True)
 
     if st.button("🗑️ 議題を削除"):
-        deleted = delete_topic(selected_topic, current_user, logical=True)
+        deleted = db_handler.delete_topic(selected_topic, current_user, logical=True)
         if deleted:
             st.success(f"「{selected_topic}」を削除しました。")
             st.experimental_rerun()
@@ -192,6 +191,7 @@ else:
 st.divider()
 if st.button("🔄 更新"):
     st.rerun()
+
 
 
 
