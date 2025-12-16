@@ -34,6 +34,7 @@ if "fg" not in st.session_state:
     st.session_state["fg"] = 0 
 
 col1, col2, col3, col4 = st.columns([0.36, 0.36, 0.14, 0.14])
+
 with col1:
     input_date = st.date_input("締め切りで絞り込み", value=None)
 with col2:
@@ -52,7 +53,7 @@ with col4:
 # ---------------------------------------------------------
 # データ取得
 # ---------------------------------------------------------
-@st.cache_data(ttl=30)
+@st.cache_data(ttl=10)
 def load_topics():
     return db_handler.get_topics_from_sheet()
 
@@ -62,7 +63,7 @@ if topics_df.empty:
     st.info("まだ議題が登録されていません。")
     st.stop()
 
-@st.cache_data(ttl=30)
+@st.cache_data(ttl=10)
 def load_votes():
     return db_handler.get_votes_from_sheet()
 
@@ -73,13 +74,17 @@ votes_df = load_votes()
 # ---------------------------------------------------------
 now = datetime.datetime.now()
 topics_df["deadline"] = pd.to_datetime(topics_df["deadline"], errors="coerce", format="%Y-%m-%d %H:%M")
+
+# 期限切れを非表示にするフィルタ
 topics_df = topics_df[topics_df["deadline"].isna() | (topics_df["deadline"] >= now)]
 
+# ソート処理
 if st.session_state.fg == 0:
     topics_df = topics_df.sort_values("deadline", ascending=True)
 elif st.session_state.fg == 1:
     topics_df = topics_df.sort_values("deadline", ascending=False)
-    
+
+# 日付フィルタ
 if input_date:
     filtered_df = topics_df[topics_df["deadline"].dt.date == input_date]
     if filtered_df.empty:
@@ -88,15 +93,16 @@ if input_date:
     else:
         topics_df = filtered_df
 
+# ▼▼▼ 自分の議題のみフィルタ（ここが重要！） ▼▼▼
 if my_only:
-    current_user = str(st.session_state.logged_in_user).strip()
-    topics_df = topics_df[
-        topics_df["owner_email"].str.strip() == current_user
-    ]
+    current_user_email = str(st.session_state.logged_in_user).strip()
+    # owner_email列があるか確認してからフィルタ
+    if "owner_email" in topics_df.columns:
+        topics_df = topics_df[topics_df["owner_email"].astype(str).str.strip() == current_user_email]
+    
     if topics_df.empty:
-        st.warning("⚠️ 自分が作成した議題はまだありません。 ")
+        st.info("あなたが作成した議題はまだありません（または期限切れです）。")
         st.stop()
-
 
 # ---------------------------------------------------------
 # 議題ループ表示
@@ -115,6 +121,19 @@ for index, topic in topics_df.iterrows():
         deadline_str = "未設定"
 
     is_closed = (status == 'closed')
+    
+    # ログイン中のユーザー
+    current_user = str(st.session_state.logged_in_user).strip()
+
+    # ▼▼▼ 重複投票チェック ▼▼▼
+    has_voted = False
+    if not votes_df.empty and "voter_email" in votes_df.columns:
+        my_vote = votes_df[
+            (votes_df["topic_title"] == title) & 
+            (votes_df["voter_email"] == current_user)
+        ]
+        if not my_vote.empty:
+            has_voted = True
 
     with st.container(border=True):
         if is_closed:
@@ -125,7 +144,6 @@ for index, topic in topics_df.iterrows():
         st.caption(f"作成者：{author}｜締め切り：{deadline_str}")
 
         # ▼ 終了ボタン表示 ▼
-        current_user = str(st.session_state.logged_in_user).strip()
         owner_email_str = str(owner_email).strip()
         if owner_email_str and current_user == owner_email_str and not is_closed:
              with st.popover("⚠️ 投票を締め切る"):
@@ -147,6 +165,12 @@ for index, topic in topics_df.iterrows():
                     st.warning("⛔ 受付終了")
                 else:
                     st.warning("⏰ 期限切れ")
+            
+            # ▼ 投票済みの場合 ▼
+            elif has_voted:
+                st.info("✅ 投票済み")
+                
+            # ▼ 未投票の場合 ▼
             else:
                 submit_value = None
                 if options_raw == "FREE_INPUT":
@@ -164,19 +188,18 @@ for index, topic in topics_df.iterrows():
                     if not submit_value:
                         st.error("回答を入力してください")
                     else:
-                        db_handler.add_vote_to_sheet(title, submit_value)
+                        # ▼▼▼ メアド(current_user)も渡す必要がある！ ▼▼▼
+                        db_handler.add_vote_to_sheet(title, submit_value, current_user)
                         load_votes.clear()
                         st.success("投票しました！")
                         st.rerun()
 
-        # 右カラム：投票数集計表示（ここを修正！）
+        # 右カラム：投票数集計表示（文字表示）
         with col2:
             st.write("### 📊 現在の投票数")
             topic_votes = votes_df[votes_df["topic_title"] == title] if not votes_df.empty else pd.DataFrame()
             
-            # ▼▼▼ パターン分けして表示 ▼▼▼
             if options_raw == "FREE_INPUT":
-                # --- 自由記述の場合 ---
                 if topic_votes.empty:
                     st.write("まだ投票はありません")
                 else:
@@ -184,8 +207,6 @@ for index, topic in topics_df.iterrows():
                     for opt, count in counts.items():
                         st.write(f"・{opt}：{count} 票")
             else:
-                # --- 選択肢の場合（ご希望のコード） ---
-                # まず選択肢リストを作ります
                 try:
                     options = str(options_raw).split("/")
                 except:
@@ -198,6 +219,7 @@ for index, topic in topics_df.iterrows():
                     counts = topic_votes["option"].value_counts()
                     for opt in options:
                         st.write(f"{opt}：{counts.get(opt, 0)} 票")
+
 
 
 
