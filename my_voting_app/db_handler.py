@@ -114,6 +114,31 @@ def get_votes_from_sheet():
         st.error(f"投票読み込みエラー: {e}")
         return pd.DataFrame()
 
+
+
+# ---------------------------------------------------------
+# 4. 議題データ削除
+# -----------------------------------------------------
+def delete_topic(title: str, user_email: str, logical=True):
+    sheet = client.open_by_key(TOPICS_SHEET_ID).sheet1
+    data = sheet.get_all_records()
+    df = pd.DataFrame(data)
+
+    # 自分の議題のみ対象
+    target = df[(df["title"] == title) & (df["owner_email"] == user_email)]
+
+    if target.empty:
+        return False  # 削除対象なし
+
+    for idx in target.index:
+        if logical:
+            # 論理削除: status を "deleted" に変更
+            sheet.update_cell(idx+2, df.columns.get_loc("status")+1, "deleted")
+        else:
+            # 物理削除: 行ごと削除
+            sheet.delete_row(idx+2)
+    return True
+
 # ---------------------------------------------------------
 # 5. ステータスを終了にする
 # ---------------------------------------------------------
@@ -129,5 +154,6 @@ def close_topic_status(topic_title):
         
     except Exception as e:
         st.error(f"ステータス更新エラー: {e}")
+
 
 
