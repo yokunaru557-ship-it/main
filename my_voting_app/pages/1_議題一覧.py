@@ -222,7 +222,7 @@ for index, topic in topics_df.iterrows():
         with col2:
             st.write("### 📊 現在の投票数")
             # タイトルも文字型で比較して抽出
-            topic_votes = votes_df[votes_df["topic_title"] == str(topic["uuid"])] if not votes_df.empty else pd.DataFrame()
+            topic_votes = votes_df[votes_df["uuid"] == str(topic["uuid"])] if not votes_df.empty else pd.DataFrame()
             
             if options_raw == "FREE_INPUT":
                 if topic_votes.empty:
@@ -244,6 +244,7 @@ for index, topic in topics_df.iterrows():
                     counts = topic_votes["option"].value_counts()
                     for opt in options:
                         st.write(f"{opt}：{counts.get(opt, 0)} 票")
+
 
 
 
