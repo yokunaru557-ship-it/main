@@ -71,9 +71,8 @@ if (
             )
             | (topics_df["status"] == "closed")
         )
-        & (
-            topics_df["owner_email"].astype(str).str.strip() == current_user
-        )
+        & (topics_df["owner_email"].astype(str).str.strip() == current_user)
+        & (topics_df["status"] != "deleted")  # ← 論理削除済みを除外
     ].copy()
 else:
     finished_topics = pd.DataFrame()
@@ -197,6 +196,7 @@ if st.button("🗑️ 議題を削除") and topic_uuid:
 st.divider()
 if st.button("🔄 更新"):
     st.rerun()
+
 
 
 
