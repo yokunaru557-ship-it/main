@@ -53,24 +53,13 @@ with col4:
     if st.button("⬇️ 降順"): st.session_state.fg = 1
 
 # ---------------------------------------------------------
-# データ取得（ここを修正！）
+# データ取得（キャッシュなし）
 # ---------------------------------------------------------
-
-# ▼▼▼ 修正1：キャッシュを削除（ttl設定を消すのではなく、デコレータ自体を消す） ▼▼▼
-# 学校の課題レベルのアクセス数なら、キャッシュなし(毎回読み込み)でもAPI制限には引っかかりにくいです。
-# 安全策としてキャッシュを使わず、確実に最新データを取ります。
-
 def load_topics():
     df = db_handler.get_topics_from_sheet()
-    
-    # データの「型」をすべて「文字(str)」に統一します（これが重要！）
-    # 数字の「1」と文字の「1」が違うせいで判定ミスするのを防ぎます
     df = df.astype(str)
-    
-    # 列がない場合のエラー回避
     if "owner_email" not in df.columns:
         df["owner_email"] = ""
-    
     return df
 
 topics_df = load_topics()
@@ -81,11 +70,10 @@ if topics_df.empty:
 
 def load_votes():
     df = db_handler.get_votes_from_sheet()
-    
-    # こちらもすべてのデータを「文字(str)」に統一
     df = df.astype(str)
     
-    if "voter_email" not in df.columns:
+    # ▼▼▼ 修正：voter_email → voted_email ▼▼▼
+    if "voted_email" not in df.columns:
         df["voted_email"] = ""
     if "topic_title" not in df.columns:
         df["topic_title"] = ""
@@ -100,9 +88,14 @@ votes_df = load_votes()
 now = datetime.datetime.now()
 topics_df["deadline"] = pd.to_datetime(topics_df["deadline"], errors="coerce", format="%Y-%m-%d %H:%M")
 topics_df = topics_df[topics_df["deadline"].isna() | (topics_df["deadline"] >= now)]
-filtered_df = topics_df[topics_df["status"] != "deleted"].copy()
-filtered_df = filtered_df[filtered_df["uuid"].notna() & (filtered_df["uuid"] != "")]
 
+# 削除されたものを除外
+if "status" in topics_df.columns:
+    topics_df = topics_df[topics_df["status"] != "deleted"].copy()
+
+# uuidがないものを除外
+if "uuid" in topics_df.columns:
+    topics_df = topics_df[topics_df["uuid"].notna() & (topics_df["uuid"] != "")]
 
 if st.session_state.fg == 0:
     topics_df = topics_df.sort_values("deadline", ascending=True)
@@ -117,8 +110,7 @@ if input_date:
     else:
         topics_df = filtered_df
 
-# ▼▼▼ 自分の議題フィルタ ▼▼▼
-# ここも文字型(str)で統一して比較
+# 自分の議題フィルタ
 current_user = str(st.session_state.logged_in_user)
 
 if my_only:
@@ -145,20 +137,18 @@ for index, topic in topics_df.iterrows():
 
     is_closed = (status == 'closed')
     
-    # ▼▼▼ 重複投票チェック（シンプルかつ確実な比較） ▼▼▼
+    # ▼▼▼ 重複投票チェック ▼▼▼
     has_voted = False
     
     # 1. データ上のチェック
-    if not votes_df.empty:
-        # タイトルも「文字」同士で比較
+    if not votes_df.empty and "uuid" in votes_df.columns:
         this_topic_votes = votes_df[votes_df["uuid"] == str(topic["uuid"])]
         
-        # 投票者リストを取得（すでにstr変換済みなのでそのままリスト化）
-        voter_list = this_topic_votes["voted_email"].tolist()
-        
-        # 完全に一致するかチェック
-        if current_user in voter_list:
-            has_voted = True
+        # ▼▼▼ 修正：voter_email → voted_email ▼▼▼
+        if "voted_email" in this_topic_votes.columns:
+            voter_list = this_topic_votes["voted_email"].tolist()
+            if current_user in voter_list:
+                has_voted = True
     
     # 2. 直前の操作履歴チェック
     if str(topic["uuid"]) in st.session_state.just_voted_topics:
@@ -215,37 +205,22 @@ for index, topic in topics_df.iterrows():
                     if not submit_value:
                         st.error("回答を入力してください")
                     else:
-                        db_handler.add_vote_to_sheet(title, submit_value, current_user,topic["uuid"])
-                        st.session_state.just_voted_topics.append(topic["uuid"])
+                        db_handler.add_vote_to_sheet(title, submit_value, current_user, topic["uuid"])
+                        st.session_state.just_voted_topics.append(str(topic["uuid"]))
                         st.success("投票しました！")
                         st.rerun()
 
         # 右カラム：投票数集計表示
         with col2:
             st.write("### 📊 現在の投票数")
-            # タイトルも文字型で比較して抽出
-            topic_votes = votes_df[votes_df["uuid"] == str(topic["uuid"])] if not votes_df.empty else pd.DataFrame()
+            topic_votes = pd.DataFrame()
+            if not votes_df.empty and "uuid" in votes_df.columns:
+                topic_votes = votes_df[votes_df["uuid"] == str(topic["uuid"])]
             
             if options_raw == "FREE_INPUT":
                 if topic_votes.empty:
-                    st.write("まだ投票はありません")
-                else:
-                    counts = topic_votes["option"].value_counts()
-                    for opt, count in counts.items():
-                        st.write(f"・{opt}：{count} 票")
-            else:
-                try:
-                    options = str(options_raw).split("/")
-                except:
-                    options = []
+                    st.write("まだ投票はありません
 
-                if topic_votes.empty:
-                    for opt in options:
-                        st.write(f"{opt}：0 票")
-                else:
-                    counts = topic_votes["option"].value_counts()
-                    for opt in options:
-                        st.write(f"{opt}：{counts.get(opt, 0)} 票")
 
 
 
