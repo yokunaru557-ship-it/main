@@ -133,10 +133,8 @@ if not result_df.empty:
 #円グラフ    
     fig = px.bar(
         result_df,
-        x="選択肢",
-        y="投票数",
-        color='選択肢',
-        text="投票数",
+        values='投票数',
+        names='選択肢',
         title=f"議題: {selected_topic} の投票結果"
     )
 # Plotly 円グラフ
@@ -208,6 +206,7 @@ CSVデータ:{result_df.to_csv(index=False)}
         )
 
         st.write(response.text)
+
 
 
 
