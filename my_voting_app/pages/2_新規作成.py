@@ -70,7 +70,8 @@ if st.session_state.creation_completed:
 # 【パターンB】入力画面
 else:
     st.title("✨ 新しい議題を作成する")
-    st.markdown("チームのみんなに聞いてみたいことを投稿しましょう！")
+    st.caption("チームのみんなに聞いてみたいことを投稿しましょう！")
+
     
     with st.container(border=True):
         st.subheader("📝 議題の内容")
@@ -172,6 +173,7 @@ else:
                     st.rerun() 
                 except Exception as e:
                     st.error(f"保存に失敗しました...: {e}")
+
 
 
 
