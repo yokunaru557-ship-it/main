@@ -12,9 +12,9 @@ import db_handler
 # ページ設定
 # ---------------------------------------------------------
 st.set_page_config(page_title="新規議題の作成", page_icon="✨")
-st.divider()
-set_background("background.png")  # 背景画像の設定
 
+set_background("background.png")  # 背景画像の設定
+st.divider()
 # ▼▼▼ 門番コード（ログインチェック） ▼▼▼
 if "logged_in_user" not in st.session_state or st.session_state.logged_in_user is None:
     st.warning("⚠️ このページを見るにはログインが必要です。")
