@@ -128,20 +128,9 @@ if not finished_topics.empty and selected_topic in finished_topics["title"].valu
 else:
     topic_uuid = None
 
-# 削除ボタン
-if st.button("🗑️ 議題を削除") and topic_uuid:
-    deleted = db_handler.delete_topic_by_uuid(topic_uuid, current_user)
-    if deleted:
-        st.success(f"「{selected_topic}」を削除しました。")
-        time.sleep(3)
-        st.rerun()
-    else:
-        st.error("削除できませんでした（権限がないか既に削除済み）")
-
-
 if not result_df.empty:
     
-    
+#円グラフ    
     fig = px.bar(
         result_df,
         x="選択肢",
@@ -153,6 +142,21 @@ if not result_df.empty:
 fig = px.pie(result_df, names="選択肢", values="投票数", 
              title=f"{selected_topic} の投票結果")
 st.plotly_chart(fig)
+
+
+
+# 削除ボタン
+if st.button("🗑️ 議題を削除") and topic_uuid:
+    deleted = db_handler.delete_topic_by_uuid(topic_uuid, current_user)
+    if deleted:
+        st.success(f"「{selected_topic}」を削除しました。")
+        time.sleep(3)
+        st.rerun()
+    else:
+        st.error("削除できませんでした（権限がないか既に削除済み）")
+
+
+
     
 # =============================
 # Gemini による分析
@@ -203,6 +207,7 @@ CSVデータ:{result_df.to_csv(index=False)}
         )
 
         st.write(response.text)
+
 
 
 
