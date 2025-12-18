@@ -149,7 +149,7 @@ for index, topic in topics_df.iterrows():
     # 1. データ上のチェック
     if not votes_df.empty:
         # タイトルも「文字」同士で比較
-        this_topic_votes = votes_df[votes_df["topic_title"] == str(topic["uuid"])]
+        this_topic_votes = votes_df[votes_df["uuid"] == str(topic["uuid"])]
         
         # 投票者リストを取得（すでにstr変換済みなのでそのままリスト化）
         voter_list = this_topic_votes["voter_email"].tolist()
@@ -244,6 +244,7 @@ for index, topic in topics_df.iterrows():
                     counts = topic_votes["option"].value_counts()
                     for opt in options:
                         st.write(f"{opt}：{counts.get(opt, 0)} 票")
+
 
 
 
