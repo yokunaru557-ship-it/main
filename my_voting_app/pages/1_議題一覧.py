@@ -98,39 +98,53 @@ votes_df = load_votes()
 # データ加工
 # ---------------------------------------------------------
 now = datetime.datetime.now()
-topics_df["deadline"] = pd.to_datetime(topics_df["deadline"], errors="coerce", format="%Y-%m-%d %H:%M")
-topics_df = topics_df[topics_df["deadline"].isna() | (topics_df["deadline"] >= now)]
-filtered_df = topics_df[topics_df["status"] != "deleted"].copy()
-filtered_df = filtered_df[filtered_df["uuid"].notna() & (filtered_df["uuid"] != "")]
 
+topics_df["deadline"] = pd.to_datetime(
+    topics_df["deadline"],
+    errors="coerce",
+    format="%Y-%m-%d %H:%M"
+)
 
-if st.session_state.fg == 0:
-    topics_df = topics_df.sort_values("deadline", ascending=True)
-elif st.session_state.fg == 1:
-    topics_df = topics_df.sort_values("deadline", ascending=False)
+display_df = topics_df.copy()
 
+# 締め切りフィルタ
+display_df = display_df[
+    display_df["deadline"].isna() | (display_df["deadline"] >= now)
+]
+
+# 削除済み除外
+display_df = display_df[display_df["status"] != "deleted"]
+
+# uuid 不正除外
+display_df = display_df[
+    display_df["uuid"].notna() & (display_df["uuid"] != "")
+]
+
+# 並び替え
+display_df = display_df.sort_values(
+    "deadline",
+    ascending=(st.session_state.fg == 0)
+)
+
+# 日付指定フィルタ
 if input_date:
-    filtered_df = topics_df[topics_df["deadline"].dt.date == input_date]
-    if filtered_df.empty:
+    display_df = display_df[display_df["deadline"].dt.date == input_date]
+    if display_df.empty:
         st.warning("⚠️ 指定した締切日の議題は見つかりませんでした。")
         st.stop()
-    else:
-        topics_df = filtered_df
 
-# ▼▼▼ 自分の議題フィルタ ▼▼▼
-# ここも文字型(str)で統一して比較
+# 自分の議題のみ
 current_user = str(st.session_state.logged_in_user)
-
 if my_only:
-    topics_df = topics_df[topics_df["owner_email"] == current_user]
-    if topics_df.empty:
-        st.info("あなたが作成した議題はまだありません（または期限切れです）。")
+    display_df = display_df[display_df["owner_email"] == current_user]
+    if display_df.empty:
+        st.info("あなたが作成した議題はありません。")
         st.stop()
 
 # ---------------------------------------------------------
 # 議題ループ表示
 # ---------------------------------------------------------
-for index, topic in topics_df.iterrows():
+for index, topic in display_df.iterrows():
     title = topic["title"]
     author = topic.get("author", "不明")
     options_raw = topic["options"]
@@ -246,6 +260,7 @@ for index, topic in topics_df.iterrows():
                     counts = topic_votes["option"].value_counts()
                     for opt in options:
                         st.write(f"{opt}：{counts.get(opt, 0)} 票")
+
 
 
 
