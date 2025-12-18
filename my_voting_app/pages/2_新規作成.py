@@ -12,7 +12,7 @@ import db_handler
 # ページ設定
 # ---------------------------------------------------------
 st.set_page_config(page_title="新規議題の作成", page_icon="✨")
-
+st.divider()
 set_background("background.png")  # 背景画像の設定
 
 # ▼▼▼ 門番コード（ログインチェック） ▼▼▼
@@ -173,6 +173,7 @@ else:
                     st.rerun() 
                 except Exception as e:
                     st.error(f"保存に失敗しました...: {e}")
+
 
 
 
