@@ -82,7 +82,7 @@ def get_topics_from_sheet():
 # 3. 投票を保存する（ここを更新！）
 # ---------------------------------------------------------
 # 引数に user_email を追加しました
-def add_vote_to_sheet(topic_title, option, user_email):
+def add_vote_to_sheet(topic_title, option, user_email,uuid):
     sheet = connect_to_sheet()
     if sheet is None: return
     
@@ -160,6 +160,7 @@ def close_topic_status(topic_title):
         
     except Exception as e:
         st.error(f"ステータス更新エラー: {e}")
+
 
 
 
