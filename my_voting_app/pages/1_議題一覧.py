@@ -85,7 +85,7 @@ def load_votes():
     # こちらもすべてのデータを「文字(str)」に統一
     df = df.astype(str)
     
-    if "voter_email" not in df.columns:
+    if "voted_email" not in df.columns:
         df["voted_email"] = ""
     if "topic_title" not in df.columns:
         df["topic_title"] = ""
@@ -246,6 +246,7 @@ for index, topic in topics_df.iterrows():
                     counts = topic_votes["option"].value_counts()
                     for opt in options:
                         st.write(f"{opt}：{counts.get(opt, 0)} 票")
+
 
 
 
