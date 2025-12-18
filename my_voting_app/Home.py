@@ -141,10 +141,8 @@ def main():
     
     with st.container(border=True):
         header_with_icon(PAGEICON_PATH, "投票アプリへようこそ！")
-        
-        st.caption(f"ログイン中: {st.session_state.logged_in_user}")
-        
         st.markdown(APP_DESCRIPTION)
+        st.caption(f"ログイン中: {st.session_state.logged_in_user}")
         st.divider()
 
         st.subheader("メニュー")
@@ -164,4 +162,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
