@@ -135,6 +135,7 @@ if not result_df.empty:
         result_df,
         x="選択肢",
         y="投票数",
+        color='選択肢'
         text="投票数",
         title=f"議題: {selected_topic} の投票結果"
     )
@@ -207,6 +208,7 @@ CSVデータ:{result_df.to_csv(index=False)}
         )
 
         st.write(response.text)
+
 
 
 
