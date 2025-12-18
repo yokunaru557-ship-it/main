@@ -136,7 +136,6 @@ if not result_df.empty:
         names="選択肢",
         values="投票数",
         title=f"議題: {selected_topic} の投票結果（円グラフ）",
-        hole=0.3  # ドーナツ型にする場合
     )
     st.plotly_chart(fig_pie)
 
@@ -203,6 +202,7 @@ CSVデータ:{result_df.to_csv(index=False)}
         )
 
         st.write(response.text)
+
 
 
 
