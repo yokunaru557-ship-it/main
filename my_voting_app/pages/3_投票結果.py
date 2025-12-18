@@ -130,17 +130,14 @@ else:
 
 if not result_df.empty:
     
-#円グラフ    
-    fig = px.bar(
+    # 円グラフ
+    fig_pie = px.pie(
         result_df,
-        values='投票数',
-        names='選択肢',
-        title=f"議題: {selected_topic} の投票結果"
+        names="選択肢",
+        values="投票数",
+        title=f"議題: {selected_topic} の投票結果（円グラフ）",
+        hole=0.3  # ドーナツ型にする場合
     )
-# Plotly 円グラフ
-fig = px.pie(result_df, names="選択肢", values="投票数", 
-             title="投票結果の円グラフ")
-st.plotly_chart(fig)
 
 
 
@@ -206,6 +203,7 @@ CSVデータ:{result_df.to_csv(index=False)}
         )
 
         st.write(response.text)
+
 
 
 
