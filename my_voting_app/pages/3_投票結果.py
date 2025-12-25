@@ -107,24 +107,25 @@ else:
 # 集計
 result = []
 
-if options == ["FREE_INPUT"]:
-    # 自由入力の場合は votes_df の option 列を選択肢として集計
-    counts = topic_votes["option"].value_counts() if not topic_votes.empty else {}
-    for opt, cnt in counts.items():
-        result.append({
-            "選択肢": opt,
-            "投票数": int(cnt)
-        })
-else:
-    # 通常の選択肢の場合
-    counts = topic_votes["option"].value_counts() if not topic_votes.empty else {}
-    for opt in options:
-        result.append({
-            "選択肢": opt,
-            "投票数": int(counts.get(opt, 0))
-        })
-
-result_df = pd.DataFrame(result)
+if options:
+    if options == ["FREE_INPUT"]:
+        # 自由入力の場合は votes_df の option 列を選択肢として集計
+        counts = topic_votes["option"].value_counts() if not topic_votes.empty else {}
+        for opt, cnt in counts.items():
+            result.append({
+                "選択肢": opt,
+                "投票数": int(cnt)
+            })
+    else:
+        # 通常の選択肢の場合
+        counts = topic_votes["option"].value_counts() if not topic_votes.empty else {}
+        for opt in options:
+            result.append({
+                "選択肢": opt,
+                "投票数": int(counts.get(opt, 0))
+            })
+    
+    result_df = pd.DataFrame(result)
 
 # 表表示
 st.dataframe(result_df, hide_index=True)
@@ -209,6 +210,7 @@ CSVデータ:{result_df.to_csv(index=False)}
         )
 
         st.write(response.text)
+
 
 
 
