@@ -88,7 +88,9 @@ else:
 
 selected_topic = st.selectbox("議題を選択してください", topic_titles)
 result_df = pd.DataFrame()
-
+options = []
+topic_votes = pd.DataFrame()
+result_df = pd.DataFrame()
 # 表示処理
 if finished_topics.empty or selected_topic == "（締切済みの議題がありません）":
     st.info("締切済みの議題はまだありません。")
@@ -210,6 +212,7 @@ CSVデータ:{result_df.to_csv(index=False)}
         )
 
         st.write(response.text)
+
 
 
 
