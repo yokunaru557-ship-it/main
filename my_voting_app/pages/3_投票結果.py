@@ -104,10 +104,10 @@ else:
 
     st.subheader(f"📝 議題：{selected_topic}")
 
-# 集計
-result = []
+    # 集計
+    result = []
 
-if options:
+
     if options == ["FREE_INPUT"]:
         # 自由入力の場合は votes_df の option 列を選択肢として集計
         counts = topic_votes["option"].value_counts() if not topic_votes.empty else {}
@@ -127,8 +127,8 @@ if options:
     
     result_df = pd.DataFrame(result)
 
-# 表表示
-st.dataframe(result_df, hide_index=True)
+    # 表表示
+    st.dataframe(result_df, hide_index=True)
 
 # finished_topics から選択されたトピックの UUID を取得
 if not finished_topics.empty and selected_topic in finished_topics["title"].values:
